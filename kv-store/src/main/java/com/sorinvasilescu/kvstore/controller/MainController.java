@@ -19,8 +19,8 @@ public class MainController {
 
     private final Logger log = LoggerFactory.getLogger("MainController");
 
-    @Qualifier("getService")
     @Autowired
+    @Qualifier("getService")
     StorageService storage;
 
     @RequestMapping(value = "/", method = RequestMethod.PUT)
