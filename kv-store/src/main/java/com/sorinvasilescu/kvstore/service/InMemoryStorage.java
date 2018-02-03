@@ -29,4 +29,9 @@ public class InMemoryStorage implements StorageService {
         if (!itemMap.containsKey(key)) throw new ItemNotFoundException("Item not found", key);
         itemMap.remove(key);
     }
+
+    @Override
+    public long size() {
+        return (long)itemMap.size();
+    }
 }

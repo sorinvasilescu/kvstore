@@ -11,4 +11,5 @@ public interface StorageService {
     public void put(Item item) throws ItemWriteFailedException, DuplicateItemException;
     public Item get(String key) throws ItemNotFoundException;
     public void delete(String key) throws ItemNotFoundException;
+    public long size();
 }

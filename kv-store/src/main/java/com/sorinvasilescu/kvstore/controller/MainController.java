@@ -1,6 +1,7 @@
 package com.sorinvasilescu.kvstore.controller;
 
 import com.sorinvasilescu.kvstore.data.Item;
+import com.sorinvasilescu.kvstore.data.SizeResponse;
 import com.sorinvasilescu.kvstore.exceptions.DuplicateItemException;
 import com.sorinvasilescu.kvstore.exceptions.ItemNotFoundException;
 import com.sorinvasilescu.kvstore.exceptions.ItemWriteFailedException;
@@ -57,5 +58,10 @@ public class MainController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/size", method = RequestMethod.GET)
+    public ResponseEntity<SizeResponse> size() {
+        return new ResponseEntity<>( new SizeResponse( storage.size() ), HttpStatus.OK );
     }
 }

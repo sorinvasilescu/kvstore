@@ -19,4 +19,9 @@ public class FileStorage implements StorageService {
     public void delete(String key) {
 
     }
+
+    @Override
+    public long size() {
+        return 0;
+    }
 }
