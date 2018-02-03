@@ -7,6 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class KvstoreApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(KvstoreApplication.class, args);
-	}
+	    SpringApplication.run(KvstoreApplication.class, args);
+    }
 }
