@@ -6,10 +6,12 @@ import com.sorinvasilescu.kvstore.exceptions.ItemNotFoundException;
 import com.sorinvasilescu.kvstore.exceptions.ItemWriteFailedException;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 @Service
 public interface StorageService {
-    public void put(Item item) throws ItemWriteFailedException, DuplicateItemException;
-    public Item get(String key) throws ItemNotFoundException;
-    public void delete(String key) throws ItemNotFoundException;
-    public long size();
+    void put(Item item) throws ItemWriteFailedException, DuplicateItemException;
+    Item get(String key) throws ItemNotFoundException;
+    void delete(String key) throws ItemNotFoundException, IOException;
+    long size() throws NullPointerException;
 }

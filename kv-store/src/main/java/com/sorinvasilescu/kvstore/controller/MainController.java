@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 public class MainController {
 
@@ -29,7 +31,7 @@ public class MainController {
         try {
             storage.put(item);
         } catch (ItemWriteFailedException e) {
-            log.error("Could not write data for key: " + e.getKey() + ". Cause: " + e.getCause().getMessage());
+            log.error("Could not write data for key: " + e.getKey() + ". Cause: " + e.getCause());
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (DuplicateItemException e) {
             log.warn("Duplicate item for key: " + e.getKey());
@@ -52,10 +54,14 @@ public class MainController {
     @RequestMapping(value = "/{key}", method = RequestMethod.DELETE)
     public ResponseEntity deleteValue(@PathVariable String key) {
         try {
-            storage.delete(key);
-        } catch (ItemNotFoundException e) {
-            log.error("Item not found: " + e.getKey());
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            try {
+                storage.delete(key);
+            } catch (ItemNotFoundException e) {
+                log.error("Item not found: " + e.getKey());
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity(HttpStatus.OK);
     }

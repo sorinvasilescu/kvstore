@@ -5,11 +5,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.util.Arrays;
 
 @JsonSerialize(using = ItemSerializer.class)
 @JsonDeserialize(using = ItemDeserializer.class)
-public class Item {
+public class Item implements Serializable {
 
     @Size(min = 1, max = 64)
     @Pattern(regexp = "^[A-Za-z0-9_-]*$")
