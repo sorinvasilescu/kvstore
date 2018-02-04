@@ -21,9 +21,7 @@ import java.util.Base64;
 import java.util.Random;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -79,8 +77,7 @@ public class ControllerTest {
     }
 
     @Test
-    public void getTest() throws Exception{
-
+    public void getTest() throws Exception {
         when(mockStorage.get(key)).thenReturn(item);
 
         MvcResult result = mockMvc.perform(
@@ -89,6 +86,38 @@ public class ControllerTest {
         ).andExpect(status().isOk())
             .andReturn();
 
+        verify(mockStorage, times(1)).get(key);
+        verifyNoMoreInteractions(mockStorage);
+
         assert result.getResponse().getContentAsString().equals(jsonStringBuilder.toString());
+    }
+
+    @Test
+    public void deleteTest() throws Exception {
+        doNothing().when(mockStorage).delete(key);
+
+        mockMvc.perform(
+            delete("/"+key)
+                .contentType("application/json")
+        ).andExpect(status().isOk());
+
+        verify(mockStorage, times(1)).delete(key);
+        verifyNoMoreInteractions(mockStorage);
+    }
+
+    @Test
+    public void sizeTest() throws Exception {
+        when(mockStorage.size()).thenReturn((long)5);
+
+        MvcResult result = mockMvc.perform(
+            get("/size")
+                .contentType("application/json")
+        ).andExpect(status().isOk())
+            .andReturn();
+
+        verify(mockStorage, times(1)).size();
+        verifyNoMoreInteractions(mockStorage);
+
+        assert result.getResponse().getContentAsString().equals("{\"size\":5}");
     }
 }
