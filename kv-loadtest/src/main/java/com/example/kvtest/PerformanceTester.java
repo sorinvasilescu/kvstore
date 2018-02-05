@@ -11,16 +11,16 @@ public class PerformanceTester implements Runnable {
     @Value("${apps.baseUrl}")
     private String[] baseUrl;
 
-    @Value("${requests.total}")
+    @Value("${requests.put.total}")
     private int requestPutTotal;
 
-    @Value("${requests.total}")
+    @Value("${requests.get.total}")
     private int requestsGetTotal;
 
-    @Value("${requests.total}")
+    @Value("${requests.delete.total}")
     private int requestsDeleteTotal;
 
-    @Value("${requests.total}")
+    @Value("${requests.size.total}")
     private int requestsSizeTotal;
 
     @Value("${requests.rampuptime}")

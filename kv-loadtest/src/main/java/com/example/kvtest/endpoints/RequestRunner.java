@@ -23,7 +23,10 @@ public class RequestRunner extends Thread {
         this.rampUp = ConfigStore.rampUp;
         this.requestClass = requestClass;
         try {
-            this.totalRequests = requestClass.getMethod("getTotal")();
+            this.totalRequests = (int)requestClass.getMethod("getTotal").invoke(null);
+        } catch (Exception e) {
+            log.error("Cannot invoke getTotal method on class " + requestClass.getName());
+        }
     }
 
     public void run() {
