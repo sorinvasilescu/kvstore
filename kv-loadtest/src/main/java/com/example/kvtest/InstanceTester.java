@@ -1,6 +1,6 @@
 package com.example.kvtest;
 
-import com.example.kvtest.endpoints.RequestRunner;
+import com.example.kvtest.requests.RequestRunner;
 import com.example.kvtest.requests.PutRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

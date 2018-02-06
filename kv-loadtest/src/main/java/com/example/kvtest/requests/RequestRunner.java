@@ -1,7 +1,6 @@
-package com.example.kvtest.endpoints;
+package com.example.kvtest.requests;
 
-import com.example.kvtest.ConfigStore;
-import com.example.kvtest.requests.PutRequest;
+import com.example.kvtest.statics.ConfigStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

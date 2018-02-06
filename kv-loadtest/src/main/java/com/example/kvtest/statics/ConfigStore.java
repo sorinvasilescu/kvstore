@@ -1,4 +1,4 @@
-package com.example.kvtest;
+package com.example.kvtest.statics;
 
 import org.springframework.stereotype.Component;
 

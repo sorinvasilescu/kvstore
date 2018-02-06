@@ -1,6 +1,6 @@
 package com.example.kvtest.requests;
 
-import com.example.kvtest.ConfigStore;
+import com.example.kvtest.statics.ConfigStore;
 import com.example.kvtest.data.Item;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
