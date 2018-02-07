@@ -1,5 +1,6 @@
 package com.example.kvtest;
 
+import com.example.kvtest.requests.GetRequest;
 import com.example.kvtest.requests.RequestRunner;
 import com.example.kvtest.requests.PutRequest;
 import org.slf4j.Logger;
@@ -19,6 +20,12 @@ public class InstanceTester {
     }
 
     private void runTest() {
-        new RequestRunner(baseUrl, PutRequest.class).run();
+        try {
+            new RequestRunner(baseUrl, PutRequest.class).run();
+            new RequestRunner(baseUrl, GetRequest.class).run();
+        } catch (Exception e) {
+            log.error("Exception running tests: " + e);
+            e.printStackTrace();
+        }
     }
 }

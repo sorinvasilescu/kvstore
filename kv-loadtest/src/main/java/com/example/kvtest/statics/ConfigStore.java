@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ConfigStore {
-    public static int requestPutTotal;
+    public static int requestsPutTotal;
     public static int requestsGetTotal;
     public static int requestsDeleteTotal;
     public static int requestsSizeTotal;

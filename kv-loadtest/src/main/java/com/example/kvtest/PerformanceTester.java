@@ -41,7 +41,7 @@ public class PerformanceTester implements Runnable {
 
         ConfigStore.payloadSize = this.payloadSize;
         ConfigStore.rampUp = this.rampUp;
-        ConfigStore.requestPutTotal = requestPutTotal;
+        ConfigStore.requestsPutTotal = requestPutTotal;
         ConfigStore.requestsGetTotal = requestsGetTotal;
         ConfigStore.requestsDeleteTotal = requestsDeleteTotal;
         ConfigStore.requestsSizeTotal = requestsSizeTotal;

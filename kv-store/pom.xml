@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.sorinvasilescu</groupId>
-	<artifactId>kvstore</artifactId>
+	<artifactId>kv-store</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>kvstore</name>
+	<name>kv-store</name>
 	<description>Java Key Value Store</description>
 
 	<parent>
@@ -37,7 +37,7 @@
 			</exclusions>
 		</dependency>
 
-		<dependency>
+        <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
@@ -49,11 +49,25 @@
 			<artifactId>spring-boot-starter-undertow</artifactId>
 		</dependency>
 
+        <!-- apache commons for random function(s) -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.7</version>
         </dependency>
+
+		<!-- auto documentation -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.6.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>2.6.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>

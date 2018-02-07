@@ -1,12 +1,14 @@
 package com.example.kvtest.requests;
 
 import com.example.kvtest.statics.ConfigStore;
+import com.example.kvtest.statics.StatsStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
-import java.util.Date;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 public class RequestRunner extends Thread {
 
@@ -30,8 +32,7 @@ public class RequestRunner extends Thread {
 
     public void run() {
         // create executor
-        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 20, 0, TimeUnit.SECONDS, queue);
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(75, 75, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
         // initialize values for ramp-up
         int target;
@@ -48,15 +49,17 @@ public class RequestRunner extends Thread {
         // get start date for ramp-up purposes
         Date startDate = new Date();
         long spent = 0;
+        long lastSpent = 0;
 
         // get constructor for later
         Constructor<?> constructor = requestClass.getConstructors()[0];
+        executor.prestartAllCoreThreads();
 
-        while (totalRequestsDone < 100) {
+        while (totalRequestsDone < 5000) {
 
             // send requests to queue if not over target
-            if (requestsThisSecond < target) {
-                for (int i=0; i < (target-requestsThisSecond); i++) {
+            if ((executor.getActiveCount() < 75) && (requestsThisSecond < target)) {
+                for (int i=0; i < Math.min((target-requestsThisSecond), 75-executor.getActiveCount())+1; i++) {
                     // instantiate the correct request class
                     Runnable request;
                     try {
@@ -66,20 +69,21 @@ public class RequestRunner extends Thread {
                         return;
                     }
 
-                    executor.execute(request);
                     requestsThisSecond++;
                     totalRequestsDone++;
+                    executor.execute(request);
                 }
             }
 
             // check time spent, if still ramping up
-            if (target < totalRequests) {
-                Date now = new Date();
-                long lastSpent = spent;
-                spent = (now.getTime() - startDate.getTime())/1000;
-                // but only once per second
-                if (lastSpent < spent) {
-                    requestsThisSecond = 0;
+            Date now = new Date();
+            spent = (now.getTime() - startDate.getTime()) / 1000;
+            // but only once per second
+            if (lastSpent < spent) {
+                log.info("Elapsed: " + spent + " | target " + target + " | completed " + requestsThisSecond);
+                lastSpent = spent;
+                requestsThisSecond = 0;
+                if (target < totalRequests) {
                     if (spent < rampUp) {
                         target = Math.round(totalRequests * spent / rampUp);
                     } else {
@@ -89,13 +93,44 @@ public class RequestRunner extends Thread {
             }
 
             try {
-                sleep(50);
+                sleep(5);
             } catch (InterruptedException e) {
                 log.warn("Thread sleep interrupted: " + this.getId());
             }
 
         }
 
-        executor.shutdown();
+        try {
+            executor.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.warn("Termination wait interrupted");
+        }
+
+        Long successful;
+        synchronized (StatsStore.successfulRequestCount) {
+            successful = StatsStore.successfulRequestCount.get(requestClass);
+        }
+
+        Long failed;
+        synchronized (StatsStore.failedRequestCount) {
+            failed = StatsStore.failedRequestCount.get(requestClass);
+        }
+
+        Long executed = successful + failed;
+        List<Long> responseTimes;
+
+        synchronized (StatsStore.responseTimes) {
+            responseTimes = new ArrayList<>(StatsStore.responseTimes.get(requestClass));
+        }
+
+        Double average = responseTimes.stream().collect(Collectors.averagingLong(Long::longValue));
+        responseTimes.sort(Long::compareTo);
+        Double top = responseTimes.subList(0,(int)Math.round(0.95*responseTimes.size())).stream().mapToInt(i -> i.intValue()).average().getAsDouble();
+
+        log.info("__________________________________________");
+        log.info("Executed " + executed + " " + requestClass.getName() + " requests out of which " + successful + " successful (" + Math.round(10000*successful/executed)/100 + " %)");
+        log.info("Average response time: " + Math.round(average) + " ms");
+        log.info("Top 95% requests' response time: " + Math.round(top) + " ms");
+        log.info("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
     }
 }

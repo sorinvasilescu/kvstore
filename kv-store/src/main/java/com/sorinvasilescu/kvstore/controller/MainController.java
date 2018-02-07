@@ -25,7 +25,7 @@ public class MainController {
     @Qualifier("getService")
     StorageService storage;
 
-    @RequestMapping(value = "/", method = RequestMethod.PUT)
+    @RequestMapping(value = "/api", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity putValue(@RequestBody Item item) {
         try {
@@ -40,7 +40,7 @@ public class MainController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{key}", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/{key}", method = RequestMethod.GET)
     public ResponseEntity<Item> getValue(@PathVariable String key) {
         try {
             Item item = storage.get(key);
@@ -51,7 +51,7 @@ public class MainController {
         }
     }
 
-    @RequestMapping(value = "/{key}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/api/{key}", method = RequestMethod.DELETE)
     public ResponseEntity deleteValue(@PathVariable String key) {
         try {
             try {
@@ -66,7 +66,7 @@ public class MainController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/size", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/size", method = RequestMethod.GET)
     public ResponseEntity<SizeResponse> size() {
         return new ResponseEntity<>( new SizeResponse( storage.size() ), HttpStatus.OK );
     }

@@ -67,7 +67,7 @@ public class ControllerTest {
         doNothing().when(mockStorage).put(item);
 
         mockMvc.perform(
-            put("/")
+            put("/api")
                 .contentType("application/json")
                 .content(jsonStringBuilder.toString().getBytes())
         ).andExpect(status().isOk());
@@ -81,7 +81,7 @@ public class ControllerTest {
         when(mockStorage.get(key)).thenReturn(item);
 
         MvcResult result = mockMvc.perform(
-            get("/"+key)
+            get("/api/"+key)
                 .contentType("application/json")
         ).andExpect(status().isOk())
             .andReturn();
@@ -97,7 +97,7 @@ public class ControllerTest {
         doNothing().when(mockStorage).delete(key);
 
         mockMvc.perform(
-            delete("/"+key)
+            delete("/api/"+key)
                 .contentType("application/json")
         ).andExpect(status().isOk());
 
@@ -110,7 +110,7 @@ public class ControllerTest {
         when(mockStorage.size()).thenReturn((long)5);
 
         MvcResult result = mockMvc.perform(
-            get("/size")
+            get("/api/size")
                 .contentType("application/json")
         ).andExpect(status().isOk())
             .andReturn();

@@ -2,12 +2,15 @@ package com.example.kvtest.requests;
 
 import com.example.kvtest.statics.ConfigStore;
 import com.example.kvtest.data.Item;
+import com.example.kvtest.statics.KeyStore;
+import com.example.kvtest.statics.StatsStore;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -40,14 +43,30 @@ public class PutRequest implements Runnable {
         HttpEntity<?> entity = new HttpEntity<>(item);
 
         Date before = new Date();
-        ResponseEntity<?> response = rest.exchange(baseUrl, HttpMethod.PUT, entity, Void.class);
-        Date after = new Date();
-        long elapsed = after.getTime() - before.getTime();
+        ResponseEntity<?> response = rest.exchange(baseUrl + "/api", HttpMethod.PUT, entity, Void.class);
 
-        log.info(response.getStatusCode().toString() + " in " + elapsed + " ms");
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            Date after = new Date();
+            long elapsed = after.getTime() - before.getTime();
+            synchronized (StatsStore.responseTimes) {
+                StatsStore.responseTimes.add(PutRequest.class, elapsed);
+            }
+            synchronized (StatsStore.successfulRequestCount) {
+                StatsStore.successfulRequestCount.compute(PutRequest.class, (k, v) -> v + 1);
+            }
+            synchronized (KeyStore.keys) {
+                KeyStore.keys.put(key,value);
+            }
+            //log.info(response.getStatusCode().toString() + " in " + elapsed + " ms");
+        } else {
+            synchronized (StatsStore.failedRequestCount) {
+                StatsStore.failedRequestCount.compute(PutRequest.class, (k, v) -> v + 1);
+            }
+            //log.info(response.getStatusCode().toString());
+        }
     }
 
     public static int getTotal() {
-        return ConfigStore.requestPutTotal;
+        return ConfigStore.requestsPutTotal;
     }
 }
