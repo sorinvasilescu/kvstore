@@ -1,5 +1,6 @@
 package com.example.kvtest.statics;
 
+import com.example.kvtest.requests.DeleteRequest;
 import com.example.kvtest.requests.GetRequest;
 import com.example.kvtest.requests.PutRequest;
 import org.springframework.stereotype.Component;
@@ -20,5 +21,7 @@ public class StatsStore {
         failedRequestCount.put(PutRequest.class, 0L);
         successfulRequestCount.put(GetRequest.class, 0L);
         failedRequestCount.put(GetRequest.class, 0L);
+        successfulRequestCount.put(DeleteRequest.class, 0L);
+        failedRequestCount.put(DeleteRequest.class, 0L);
     }
 }

@@ -4,5 +4,5 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class KeyStore {
-    public static final Map<String,byte[]> keys = new HashMap<>();
+    public static final Map<String, Map<String,byte[]>> keys = new HashMap<>();
 }

@@ -52,7 +52,7 @@ public class PerformanceTester implements Runnable {
         }
 
         for (int i=0; i < baseUrl.length; i++) {
-            new InstanceTester(baseUrl[i]);
+            new InstanceTester(baseUrl[i]).start();
         }
     }
 }

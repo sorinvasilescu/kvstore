@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Random;
 
 public class PutRequest implements Runnable {
@@ -43,10 +44,11 @@ public class PutRequest implements Runnable {
         HttpEntity<?> entity = new HttpEntity<>(item);
 
         Date before = new Date();
+        Date after;
         ResponseEntity<?> response = rest.exchange(baseUrl + "/api", HttpMethod.PUT, entity, Void.class);
 
         if (response.getStatusCode().equals(HttpStatus.OK)) {
-            Date after = new Date();
+            after = new Date();
             long elapsed = after.getTime() - before.getTime();
             synchronized (StatsStore.responseTimes) {
                 StatsStore.responseTimes.add(PutRequest.class, elapsed);
@@ -55,7 +57,12 @@ public class PutRequest implements Runnable {
                 StatsStore.successfulRequestCount.compute(PutRequest.class, (k, v) -> v + 1);
             }
             synchronized (KeyStore.keys) {
-                KeyStore.keys.put(key,value);
+                if (!KeyStore.keys.containsKey(baseUrl)) {
+                    KeyStore.keys.put(baseUrl,new HashMap<>());
+                }
+            }
+            synchronized (KeyStore.keys.get(baseUrl)) {
+                KeyStore.keys.get(baseUrl).put(key,value);
             }
             //log.info(response.getStatusCode().toString() + " in " + elapsed + " ms");
         } else {
