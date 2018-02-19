@@ -6,11 +6,19 @@ import org.apache.commons.lang3.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class WriteDependentRequest extends Thread  {
 
     private final Logger log = LoggerFactory.getLogger("WriteDependentRequest");
 
     protected String baseUrl;
+
+    protected static QuietErrorHandler errorHandler;
+
+    static {
+        errorHandler = new QuietErrorHandler();
+    }
 
     public WriteDependentRequest(String baseUrl) {
         this.baseUrl = baseUrl;
@@ -27,12 +35,6 @@ public class WriteDependentRequest extends Thread  {
 
         // wait for at least one item to be written
         while (key == null) {
-            // wait
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                log.warn("Interrupted");
-            }
             // get written key array size
             synchronized (KeyStore.keys) {
                 if (KeyStore.keys.containsKey(baseUrl)) {
@@ -47,6 +49,13 @@ public class WriteDependentRequest extends Thread  {
                     }
                 }
             }
+            // wait if still no value
+            if (key == null)
+                try {
+                    sleep(50);
+                } catch (InterruptedException e) {
+                    log.warn("Interrupted");
+                }
         }
 
         return new Item(key,value);

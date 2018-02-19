@@ -2,6 +2,7 @@ package com.example.kvtest.requests;
 
 import com.example.kvtest.statics.ConfigStore;
 import com.example.kvtest.statics.StatsStore;
+import com.sun.jmx.remote.internal.ArrayQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +32,14 @@ public class RequestRunner extends Thread {
     }
 
     public void run() {
+
+        int poolsize = 150;
+
         // create executor
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(75, 75, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(poolsize, poolsize, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+        executor.prestartAllCoreThreads();
+
+        List<Runnable> taskList = new ArrayList<>();
 
         // initialize values for ramp-up
         int target;
@@ -53,13 +60,13 @@ public class RequestRunner extends Thread {
 
         // get constructor for later
         Constructor<?> constructor = requestClass.getConstructors()[0];
-        executor.prestartAllCoreThreads();
 
-        while (totalRequestsDone < 5000) {
+        while (totalRequestsDone < 20000) {
 
             // send requests to queue if not over target
-            if ((executor.getActiveCount() < 75) && (requestsThisSecond < target)) {
-                for (int i=0; i < Math.min((target-requestsThisSecond), 75-executor.getActiveCount())+1; i++) {
+            if ((executor.getActiveCount() < poolsize) && (requestsThisSecond < target)) {
+                int i = 0;
+                while (i < Math.min((target-requestsThisSecond), poolsize-executor.getActiveCount())) {
                     // instantiate the correct request class
                     Runnable request;
                     try {
@@ -72,6 +79,7 @@ public class RequestRunner extends Thread {
                     requestsThisSecond++;
                     totalRequestsDone++;
                     executor.execute(request);
+                    i++;
                 }
             }
 
@@ -101,7 +109,8 @@ public class RequestRunner extends Thread {
         }
 
         try {
-            executor.awaitTermination(10, TimeUnit.SECONDS);
+            log.info("ThreadPool waiting for termination");
+            executor.awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             log.warn("Termination wait interrupted");
         }
@@ -125,12 +134,24 @@ public class RequestRunner extends Thread {
 
         Double average = responseTimes.stream().collect(Collectors.averagingLong(Long::longValue));
         responseTimes.sort(Long::compareTo);
-        Double top = responseTimes.subList(0,(int)Math.round(0.95*responseTimes.size())).stream().mapToInt(i -> i.intValue()).average().getAsDouble();
+        Double top95 = responseTimes.subList(0,(int)Math.round(0.95*responseTimes.size())).stream().mapToInt(i -> i.intValue()).average().getAsDouble();
+        Double top99 = responseTimes.subList(0,(int)Math.round(0.99*responseTimes.size())).stream().mapToInt(i -> i.intValue()).average().getAsDouble();
+        Double top75 = responseTimes.subList(0,(int)Math.round(0.75*responseTimes.size())).stream().mapToInt(i -> i.intValue()).average().getAsDouble();
+        Double top50 = responseTimes.subList(0,(int)Math.round(0.50*responseTimes.size())).stream().mapToInt(i -> i.intValue()).average().getAsDouble();
 
-        log.info("__________________________________________");
-        log.info("Executed " + executed + " " + requestClass.getName() + " requests out of which " + successful + " successful (" + Math.round(10000*successful/executed)/100 + " %)");
-        log.info("Average response time: " + Math.round(average) + " ms");
-        log.info("Top 95% requests' response time: " + Math.round(top) + " ms");
-        log.info("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾");
+        String result = "";
+
+        result += "\n__________________________________________\n";
+        result += "Results for " + baseUrl + " " + requestClass.getName() + "\n";
+        result += "Executed " + executed + " " + requestClass.getName() + " requests out of which " + successful + " successful (" + Math.round(10000*successful/executed)/100 + " %)\n";
+        result += "Average response time: " + Math.round(average) + " ms\n";
+        result += "Top 50% requests' response time: " + Math.round(top50) + " ms\n";
+        result += "Top 75% requests' response time: " + Math.round(top75) + " ms\n";
+        result += "Top 95% requests' response time: " + Math.round(top95) + " ms\n";
+        result += "Top 99% requests' response time: " + Math.round(top99) + " ms\n";
+        result += "‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n";
+        log.info(result);
+
+        log.info("Request runner finished");
     }
 }

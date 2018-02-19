@@ -12,7 +12,7 @@ public class InstanceTester extends Thread {
 
     private String baseUrl;
 
-    private final Logger log = LoggerFactory.getLogger("PerformanceTester");
+    private final Logger log = LoggerFactory.getLogger("InstanceTester");
 
     public InstanceTester(String baseUrl) {
         this.baseUrl = baseUrl;
@@ -29,5 +29,7 @@ public class InstanceTester extends Thread {
             log.error("Exception running tests: " + e);
             e.printStackTrace();
         }
+
+        log.info("Instance tester finished");
     }
 }

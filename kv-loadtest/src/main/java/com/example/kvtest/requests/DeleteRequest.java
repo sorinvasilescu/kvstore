@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
+import java.util.List;
 
 public class DeleteRequest extends WriteDependentRequest {
 
@@ -26,11 +27,14 @@ public class DeleteRequest extends WriteDependentRequest {
         Item reference = this.waitForItem(true);
 
         RestTemplate rest = new RestTemplate();
+        // set response handler that does nothing, as we treat errors below
+        rest.setErrorHandler(WriteDependentRequest.errorHandler);
         Date before = new Date();
         Date after;
         ResponseEntity<?> response = rest.exchange(baseUrl + "/api/" + reference.getKey(), HttpMethod.DELETE, null, Void.class);
+        after = new Date();
+
         if (response.getStatusCode().equals(HttpStatus.OK)) {
-            after = new Date();
             long elapsed = after.getTime() - before.getTime();
             synchronized (StatsStore.responseTimes) {
                 StatsStore.responseTimes.add(DeleteRequest.class, elapsed);
@@ -48,7 +52,6 @@ public class DeleteRequest extends WriteDependentRequest {
             }
             //log.info(response.getStatusCode().toString());
         }
-
     }
 
     public static int getTotal() {

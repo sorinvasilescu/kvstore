@@ -12,10 +12,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 public class PutRequest implements Runnable {
@@ -46,9 +48,9 @@ public class PutRequest implements Runnable {
         Date before = new Date();
         Date after;
         ResponseEntity<?> response = rest.exchange(baseUrl + "/api", HttpMethod.PUT, entity, Void.class);
+        after = new Date();
 
         if (response.getStatusCode().equals(HttpStatus.OK)) {
-            after = new Date();
             long elapsed = after.getTime() - before.getTime();
             synchronized (StatsStore.responseTimes) {
                 StatsStore.responseTimes.add(PutRequest.class, elapsed);
